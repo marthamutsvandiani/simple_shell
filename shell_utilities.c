@@ -35,7 +35,7 @@ dest[dlen] = '\0';
 return (dest);
 }
 
-int _strlen(cons int *s)
+int _strlen(const int *s)
 {
 	int k = 0;
 
