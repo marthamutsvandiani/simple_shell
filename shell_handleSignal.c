@@ -6,15 +6,15 @@
 /**
  * handle_signal - Handles signals
  *
- * @signalID: The signal identifier to handle
+ * @signal_ID: The signal identifier to handle
  *
  * Description: This function handles a given signal identifier by writing a
  * prompt to standard output.
  *
  * Return: void
  */
-void handle_signal(int signalID)
+void handle_signal(int signal_ID)
 {
-if (signalID == SIGINT)
+if (signal_ID == SIGINT)
 write(STDOUT_FILENO, "\n($) ", 5);
 }

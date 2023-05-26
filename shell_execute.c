@@ -1,18 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "shell.h"
+#include <sys/stat.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 /**
- * concat_path : concanate [rogramme and path names
- * @path_name :...
- * @prog_name :...
- * Return :Concanated Path and Prog names
+ * concat_path : concanate program and path names
+ * @path_name :pointer to path name string
+ * @prog_name :pointer to program name string
+ * Return :Concanated Path and program names
  */
 
 char *concat_path(char *path_name, char *prog_name)
 {
 	int programe_len = 0;
+
 	int path_len = 0;
+
 	int new_size = 0;
 
 	programe_len = _strlen(prog_name);
@@ -29,71 +35,104 @@ char *concat_path(char *path_name, char *prog_name)
 	return (path_name);
 
 }
+/**
+ * find - finds the location of a command in PATH directories
+ * @_name : pointer to command string
+ *
+ * Return : path to command or NULL if not found
+ */
+
 
 char *find(char *_name)
 {
 
 	int k = 0, num_del = 0;
+
 	struct stat sb;
 
-	if (_name && stat(_name, &sb) != &&_name[0] != '/')
+	char *env_path = NULL, **p_tokns = NULL, *temp = NULL, *ret_val = NULL;
+
+	if (_name && stat(_name, &sb) != 0 && _name[0] != '/')
 
 	{
 
-	char *env_path = _getenv("PATH");
+	env_path = getenv("PATH");
 
 	num_del = count_delims(env_path, ":") + 1;
 
-	char **p_tokns = tokenize(env_path, ":", num_del);
+	p_tokns = (char **)tokenize(env_path, ":", num_del);
+	
+	while (p_tokns[k])
 
-	while
-	(p_tokns[k])
 	{
+	 temp = strdup(p_tokns[k]);
+	 ret_val = concat_path(temp, _name);
 
-	free(_name);
-	_name = _strup(p_tokns[k];
-	frees_get_env(env_path);
+	 if (stat(ret_val, &sb) == 0)
+	 {
+	 
+	 free(temp);
+	free(env_path);
 	frees_tokens(p_tokns);
-	return (_name);
+	return (ret_val);
+	}
+
 	k++;
+	free(temp);
+	free(ret_val);
+
 	}
 
-	frees_get_env(env_path);
+	free(env_path);
 	frees_tokens(p_tokns);
-	}
+ }
 
 	if (stat(_name, &sb) == 0)
-	return (_name);
+{
+	ret_val = strdup(_name);
+	return (ret_val);
+}
 
 
-	free(_name);
+
 	return (NULL);
 
 }
 
+/**
+ * exec - executes a command with arguments
+ *
+ * @_name : pointer to command string
+ * @options : array of pointers to option strings
+ *
+ * Return : 0 on success, -1 on failure
+ */
+
 int exec(char *_name, char **options)
 {
 	pid_t child;
+
 	int status = 0;
 
 
 	switch (child = fork())
 	{
 	case -1:
+
 	perror("fork failed");
 	return (-1);
 
 	case 0:
 
-	char **environ;
-
-	execve(_name, options, environ);
+		execve(_name, options, NULL);
+		perror("execve failed");
+		exit(EXIT_FAILURE);
 
 	default:
 
 	do {
-	waitspid(child, &status, WUNTRACED);
-	} while (WIFEXITED(status) == 0 && WIFSIGNALED(status) == 0);
+	waitpid(child, &status, WUNTRACED);
+	} while (WIFEXITED(status) && !WIFSIGNALED(status));
 
 	}
 	return (0);
